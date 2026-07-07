@@ -1,36 +1,96 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# R.E.P.O. Tactical Advisor — Frontend
+
+The user-facing interface for AI-powered tactical extraction planning for R.E.P.O., a horror extraction game.
+
+## What It Does
+
+This frontend presents a structured, card-based UI where players input their current run state and receive AI-generated extraction plans. Instead of free-form chat, the interface uses:
+
+- **Map Selection**: Choose your extraction level (Headman Manor, Mcjannek Station, Museum of Human Art, Swiftbroom Academy)
+- **Monster Roster**: Select and count active threats (29 different monster types)
+- **Run Parameters**: Specify team size, loot percentage, and extractions remaining
+- **Extraction Plan Request**: Submit your scenario to generate a risk-scored tactical plan
+
+The backend analyzes your input against a community knowledge base (RAG-augmented from scraped R.E.P.O. guides) and returns:
+- Multi-phase extraction strategies with actionable steps
+- Risk assessment and confidence scoring
+- Reasoning chains explaining decisions
+- Contingency plans for hostile encounters
+- Source citations from community field notes
+
+## Architecture
+
+**Framework**: Next.js 16 (React 19 + TypeScript)  
+**State Management**: Zustand (lightweight game state store)  
+**Styling**: Tailwind CSS with custom design tokens for a dark, atmospheric UI  
+**API Client**: Fetches tactical plans from FastAPI backend via `/plan` endpoint  
+
+## Key Components
+
+| Component | Purpose |
+|-----------|---------|
+| [header.tsx](src/home/header.tsx) | Hero section with R.E.P.O. logo, tagline, and Semibot attribution |
+| [map-row.tsx](src/home/map-row.tsx) | Map selection grid (4 maps, card-based UI) |
+| [monsters-row.tsx](src/home/monsters-row.tsx) | Monster roster with count selectors (29 monsters) |
+| [monster-card.tsx](src/home/monster-card.tsx) | Individual monster card with image and count controls |
+| [extraction-plan-button.tsx](src/home/extraction-plan-button.tsx) | Submit button to request plan from backend |
+| [extraction-plan-modal.tsx](src/home/extraction-plan-modal.tsx) | Modal displaying AI-generated tactical plan |
+| [selection-card.tsx](src/home/selection-card.tsx) | Reusable card component for map/location selection |
+
+**State Store**: [extraction-store.ts](src/stores/extraction-store.ts) — Zustand store managing map, team size, loot %, extractions remaining, and selected monsters
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+- Node.js 18+
+- Backend API running (default: `http://localhost:8000`)
+
+### Development
 
 ```bash
+cd frontend
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Frontend runs on `http://localhost:3000`
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Build & Deploy
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run build
+npm start       # Production server
+```
 
-## Learn More
+Deploy to Vercel (free tier):
+```bash
+vercel deploy
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Environment
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+The frontend expects the backend API at:
+- **Development**: `http://localhost:8000`
+- **Production**: Set via `NEXT_PUBLIC_API_URL` or infer from deployment
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+No API keys required on the frontend; sensitive keys (Groq, Supabase) are backend-only.
 
-## Deploy on Vercel
+## Development Notes
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- **UI Constraints**: Card-based selection ensures valid game state before API requests
+- **No Free-Form Chat**: Deliberately structured to keep extraction plans deterministic and actionable
+- **Type Safety**: All components fully typed with TypeScript; shared types in [src/types/](src/types/)
+- **Service Layer**: API calls in [src/services/](src/services/) keep components clean
+- **Dark Theme**: Tailwind tokens optimized for atmospheric horror game aesthetic
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Roadmap
+
+- Pre-generated visual guides (level maps, monster spawns with density heatmaps)
+- Agentic refinement (re-plan based on user feedback in multi-turn flows)
+- Conversation memory for plan modifications
+- Vision model integration for screenshot understanding
+- WebLLM for privacy-focused edge inference (run models in-browser)
+
+## License
+
+MIT

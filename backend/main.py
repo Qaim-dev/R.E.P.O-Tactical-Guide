@@ -19,15 +19,22 @@ app.add_middleware(
 
 OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434/api/generate")
 
+class Monster(BaseModel):
+    name: str
+    count: int
+
 class GameState(BaseModel):
     map: str
     players: int
     extractions_remaining: int
     loot_percent: float
-    monsters: list[str]
+    monsters: list[Monster]
 
 @app.post("/plan")
 async def generate_plan(state: GameState):
+
+    monsters_str = ', '.join([f"{m.name} (x{m.count})" for m in state.monsters])
+
     prompt = f"""You are a tactical advisor for the game R.E.P.O.
 Given the current game state, output a step-by-step extraction plan as JSON.
 If you are uncertain about any game mechanic, state that clearly instead of guessing.
@@ -37,7 +44,7 @@ Current state:
 - Players: {state.players}
 - Extractions remaining: {state.extractions_remaining}
 - Loot percentage: {state.loot_percent}%
-- Active monsters: {', '.join(state.monsters)}
+- Active monsters: {monsters_str}
 
 Output a JSON object exactly like this:
 {{
